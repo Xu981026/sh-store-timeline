@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>上海战区零售中心 · 开店时间轴</title>
+<meta name="description" content="理想汽车上海战区零售中心门店开店时间轴 · 完整门店现状查阅">
+<meta property="og:title" content="上海战区零售中心开店时间轴">
+<meta property="og:description" content="理想汽车上海区域门店完整开店时间线">
+<meta name="theme-color" content="#2D5A3D">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+*{font-family:'Noto Sans SC',-apple-system,sans-serif;box-sizing:border-box}
+:root{--green-dark:#2D5A3D;--green-mid:#5A8F6A;--gray-mid:#9E9E9E;--gray-light:#C7C7C7}
+
+.timeline-scroll{transition:min-width .3s ease}
+.row-area{position:relative;height:76px;border-bottom:1px solid #edf2f7}
+.row-area::before{content:'';position:absolute;inset:0;z-index:0}
+.row-area[data-row="0"]::before{background:rgba(45,90,61,0.04)}
+.row-area[data-row="1"]::before{background:rgba(90,143,106,0.04)}
+.row-area[data-row="2"]::before{background:rgba(158,158,158,0.05)}
+.row-area[data-row="3"]::before{background:rgba(199,199,199,0.05)}
+
+.store-dot{position:absolute;z-index:10;cursor:pointer;transition:transform .15s}
+.store-dot:hover{transform:translateX(-50%) scale(1.25);z-index:20}
+.store-label{position:absolute;z-index:9;pointer-events:none;font-size:10px;color:#4a5568;white-space:nowrap;font-weight:500;transform:translateX(-50%)}
+.quarter-line{position:absolute;top:0;bottom:0;width:1px;background:#edf2f7;z-index:1}
+.year-line{position:absolute;top:0;bottom:0;width:1px;background:#cbd5e0;z-index:1}
+
+.tooltip-card{position:fixed;z-index:1000;pointer-events:none;opacity:0;transition:opacity .15s}
+.store-card{transition:all .2s;border:1px solid #e8edf2}
+.store-card:hover{border-color:var(--green-dark);box-shadow:0 4px 16px rgba(45,90,61,0.12)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.active{display:flex}
+.modal-box{background:white;border-radius:16px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+
+input,select{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--green-dark);box-shadow:0 0 0 3px rgba(45,90,61,0.1)}
+
+.btn-primary{background:var(--green-dark);color:#fff;padding:10px 24px;border-radius:10px;font-weight:600;font-size:14px;transition:all .2s;cursor:pointer;border:none}
+.btn-primary:hover{background:#1E3F2A;box-shadow:0 4px 14px rgba(45,90,61,0.3)}
+.btn-ghost{background:transparent;color:#4a5568;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid #e2e8f0;transition:all .15s}
+.btn-ghost:hover{background:#f7fafc;border-color:#cbd5e0}
+.btn-danger{background:#f56565;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;border:none}
+.btn-danger:hover{background:#e53e3e}
+
+.stat-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500}
+.filter-btn{padding:6px 16px;border-radius:20px;font-size:13px;cursor:pointer;border:1.5px solid #e2e8f0;background:#fff;color:#4a5568;transition:all .15s;font-weight:500}
+.filter-btn.active{background:var(--green-dark);color:#fff;border-color:var(--green-dark)}
+.filter-btn:hover:not(.active){border-color:var(--green-dark);color:var(--green-dark)}
+
+.btn-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .15s;font-size:14px;color:#4a5568}
+.btn-icon:hover{background:#f7fafc;border-color:var(--green-dark);color:var(--green-dark)}
+
+::-webkit-scrollbar{height:6px;width:6px}
+::-webkit-scrollbar-track{background:#edf2f7;border-radius:3px}
+::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:3px}
+
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.store-card{animation:fadeSlideIn .3s ease-out}
+</style>
+</head>
+<body class="bg-[#f5f5f5] text-gray-800 antialiased">
+
+<!-- ===== LOGIN ===== -->
+<div class="modal-overlay" id="loginOverlay">
+  <div class="modal-box p-8" style="max-width:380px">
+    <div class="w-14 h-14 bg-[var(--green-dark)] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa fa-shield text-white text-xl"></i></div>
+    <h2 class="text-lg font-bold text-center mb-1">管理员登录</h2>
+    <p class="text-xs text-gray-400 text-center mb-5">编辑门店数据需要管理员权限</p>
+    <input id="loginId" type="text" placeholder="管理员 ID" class="!text-center mb-3" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+    <input id="loginPwd" type="password" placeholder="密码" class="!text-center mb-3" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginErr" class="text-xs text-red-500 mb-2 text-center hidden">ID 或密码错误</div>
+    <button onclick="doLogin()" class="btn-primary w-full mb-2">进入编辑模式</button>
+    <button onclick="skipLogin()" class="btn-ghost w-full text-sm">仅查阅（跳过登录）</button>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 py-4 md:py-5">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1 class="text-xl md:text-2xl font-bold text-[#1a1a2e] flex items-center gap-2">
+          <span class="w-1 h-7 bg-[var(--green-dark)] rounded-full inline-block"></span>
+          上海战区零售中心 · 开店时间轴
+        </h1>
+        <span id="modeBadge" class="text-[10px] px-2.5 py-0.5 rounded-full border font-medium bg-gray-50 text-gray-500 border-gray-200">查阅模式</span>
+      </div>
+      <p class="text-xs md:text-sm text-gray-400 ml-3 mt-0.5">理想汽车上海区域 · 零售中心门店完整开店时间线</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="adminBtn" onclick="showLogin()" class="btn-ghost flex items-center gap-1.5 text-xs md:text-sm whitespace-nowrap">
+        <i class="fa fa-user-circle-o"></i> <span id="adminLabel">管理员登录</span>
+      </button>
+      <button id="addBtn" onclick="openAddModal()" class="btn-primary flex items-center gap-2 whitespace-nowrap hidden text-sm">
+        <i class="fa fa-plus"></i> 添加门店
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div id="statsBar" class="flex flex-wrap gap-2 mb-4"></div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-2 items-center mb-4">
+    <span class="text-xs text-gray-400 mr-1"><i class="fa fa-filter"></i></span>
+    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn" data-filter="在营">在营</button>
+    <button class="filter-btn" data-filter="已闭">已关闭</button>
+    <span class="text-gray-300 mx-1">|</span>
+    <input id="searchInput" type="text" placeholder="搜索门店..." class="w-36 md:w-44 py-1.5 text-sm rounded-full pl-4" style="border:1.5px solid #e2e8f0">
+  </div>
+
+  <!-- Timeline -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-5 mb-5">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h2 class="text-sm font-semibold text-gray-600 flex items-center gap-1.5">
+          <i class="fa fa-clock-o text-[var(--green-dark)]"></i> 开店时间线
+        </h2>
+        <div class="flex items-center gap-1 bg-gray-50 rounded-lg p-0.5 border border-gray-100">
+          <button onclick="zoomOut()" class="btn-icon !w-7 !h-7 !text-xs"><i class="fa fa-minus"></i></button>
+          <span id="zoomLevel" class="text-xs text-gray-500 w-8 text-center font-medium">1×</span>
+          <button onclick="zoomIn()" class="btn-icon !w-7 !h-7 !text-xs"><i class="fa fa-plus"></i></button>
+          <button onclick="zoomReset()" class="btn-icon !w-7 !h-7 !text-xs"><i class="fa fa-undo"></i></button>
+        </div>
+      </div>
+      <div class="flex gap-3 text-[10px] md:text-xs text-gray-400">
+        <span class="flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--green-dark);border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.08);flex-shrink:0"></span>商场店</span>
+        <span class="flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--green-mid);border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.08);flex-shrink:0"></span>中心店</span>
+        <span class="flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--gray-mid);border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.08);flex-shrink:0"></span>已关闭</span>
+      </div>
+    </div>
+
+    <div style="display:flex;max-width:100%">
+      <!-- Fixed labels -->
+      <div style="flex-shrink:0;width:100px;z-index:30;position:relative;background:white;border-right:2px solid #e2e8f0">
+        <div style="height:40px"></div><div style="height:22px"></div>
+        <div class="flex items-center" style="height:76px;border-bottom:1px solid #edf2f7;padding:8px"><div><div class="text-xs font-bold text-[var(--green-dark)]">在营·商场</div><div class="text-[10px] text-gray-400"><span id="count0">0</span>家</div></div></div>
+        <div class="flex items-center" style="height:76px;border-bottom:1px solid #edf2f7;padding:8px"><div><div class="text-xs font-bold text-[var(--green-mid)]">在营·中心</div><div class="text-[10px] text-gray-400"><span id="count1">0</span>家</div></div></div>
+        <div class="flex items-center" style="height:76px;border-bottom:1px solid #edf2f7;padding:8px"><div><div class="text-xs font-bold text-gray-500">已闭·商场</div><div class="text-[10px] text-gray-400"><span id="count2">0</span>家</div></div></div>
+        <div class="flex items-center" style="height:76px;padding:8px"><div><div class="text-xs font-bold text-gray-400">已闭·中心</div><div class="text-[10px] text-gray-400"><span id="count3">0</span>家</div></div></div>
+      </div>
+
+      <!-- Scrollable timeline -->
+      <div class="timeline-wrap" style="overflow-x:auto;flex:1;min-width:0" id="timelineWrap">
+        <div class="timeline-scroll" id="timelineScroll" style="min-width:1100px">
+          <div class="flex"><div class="flex-1" style="display:grid;grid-template-columns:repeat(8,1fr)">
+            <div class="text-center text-xs font-semibold text-gray-400 py-1.5 border-r border-gray-100">2019</div>
+            <div class="text-center text-xs font-semibold text-gray-400 py-1.5 border-r border-gray-100">2020</div>
+            <div class="text-center text-xs font-semibold text-gray-400 py-1.5 border-r border-gray-100">2021</div>
+            <div class="text-center text-xs font-semibold text-gray-400 py-1.5 border-r border-gray-100">2022</div>
+            <div class="text-center text-xs font-semibold text-[var(--green-dark)] py-1.5 border-r border-gray-100">2023</div>
+            <div class="text-center text-xs font-semibold text-[var(--green-dark)] py-1.5 border-r border-gray-100">2024</div>
+            <div class="text-center text-xs font-semibold text-[var(--green-dark)] py-1.5 border-r border-gray-100">2025</div>
+            <div class="text-center text-xs font-semibold text-[var(--green-dark)] py-1.5">2026</div>
+          </div></div>
+          <div class="flex"><div class="flex-1" id="quarterTicks" style="display:grid;grid-template-columns:repeat(32,1fr)"></div></div>
+          <div id="rowsContainer">
+            <div class="row-area" data-row="0"></div>
+            <div class="row-area" data-row="1"></div>
+            <div class="row-area" data-row="2"></div>
+            <div class="row-area" data-row="3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Store List -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-5 mb-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold text-gray-600 flex items-center gap-1.5"><i class="fa fa-list text-[var(--green-dark)]"></i> 门店清单</h2>
+      <span class="text-xs text-gray-400">共 <strong id="totalCount">0</strong> 家</span>
+    </div>
+    <div id="storeList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"></div>
+    <div id="emptyHint" class="hidden text-center py-12 text-gray-400"><i class="fa fa-inbox text-3xl block mb-2"></i>暂无匹配的门店</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center text-xs text-gray-400 pb-4 space-y-1">
+    <p>理想汽车上海战区零售中心 · 门店数据实时更新</p>
+    <p>数据存储于本地浏览器，编辑需管理员权限</p>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-lg font-bold" id="modalTitle">添加门店</h3>
+      <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+    <form id="storeForm" onsubmit="saveStore(event)">
+      <input type="hidden" id="editId">
+      <div class="space-y-4">
+        <div><label class="block text-sm font-medium text-gray-600 mb-1">门店名称</label><input id="formName" required placeholder="例：世纪汇零售中心"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium text-gray-600 mb-1">营业状态</label><select id="formStatus"><option value="在营">在营</option><option value="已闭">已关闭</option></select></div>
+          <div><label class="block text-sm font-medium text-gray-600 mb-1">门店类型</label><select id="formType"><option value="商场店">商场店</option><option value="中心店">中心店</option></select></div>
+        </div>
+        <div><label class="block text-sm font-medium text-gray-600 mb-1">开业日期</label><input id="formOpenDate" type="date" required></div>
+        <div id="closeDateGroup" style="display:none"><label class="block text-sm font-medium text-gray-600 mb-1">闭店日期</label><input id="formCloseDate" type="date"></div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" onclick="closeModal()" class="btn-ghost">取消</button>
+        <button type="submit" class="btn-primary">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip-card" id="tooltip"><div class="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg"></div></div>
+
+<script>
+// ===== DATA =====
+const STORE_SEED = [
+  {name:'世纪汇零售中心',status:'在营',type:'商场店',openDate:'2019-05-01'},
+  {name:'长泰广场零售中心',status:'在营',type:'商场店',openDate:'2021-05-01'},
+  {name:'虹桥天地零售中心',status:'在营',type:'商场店',openDate:'2021-12-26'},
+  {name:'复地活力城零售中心',status:'在营',type:'商场店',openDate:'2022-06-24'},
+  {name:'静安大融城零售中心',status:'在营',type:'商场店',openDate:'2022-09-16'},
+  {name:'奉贤天街零售中心',status:'在营',type:'商场店',openDate:'2022-12-23'},
+  {name:'蟠龙天地零售中心',status:'在营',type:'商场店',openDate:'2023-04-19'},
+  {name:'合生汇零售中心',status:'在营',type:'商场店',openDate:'2023-07-22'},
+  {name:'中海环宇城零售中心',status:'在营',type:'商场店',openDate:'2023-12-22'},
+  {name:'前滩L+ PLAZA零售中心',status:'在营',type:'商场店',openDate:'2023-12-31'},
+  {name:'长宁来福士零售中心',status:'在营',type:'商场店',openDate:'2024-03-31'},
+  {name:'凯德虹口零售中心',status:'在营',type:'商场店',openDate:'2024-04-12'},
+  {name:'中信泰富万达零售中心',status:'在营',type:'商场店',openDate:'2024-04-12'},
+  {name:'南翔印象城零售中心',status:'在营',type:'商场店',openDate:'2024-11-28'},
+  {name:'南丰城零售中心',status:'在营',type:'商场店',openDate:'2025-03-25'},
+  {name:'嘉亭荟零售中心',status:'在营',type:'商场店',openDate:'2025-07-16'},
+  {name:'荟聚零售中心',status:'在营',type:'商场店',openDate:'2026-05-02'},
+  {name:'熊猫广场零售中心',status:'在营',type:'中心店',openDate:'2023-12-15'},
+  {name:'手拉手汽车港零售中心',status:'在营',type:'中心店',openDate:'2025-05-01'},
+  {name:'红柳路汽车城零售中心',status:'在营',type:'中心店',openDate:'2025-07-10'},
+  {name:'张杨路零售中心',status:'在营',type:'中心店',openDate:'2025-10-01'},
+  {name:'龙华会零售中心',status:'已闭',type:'商场店',openDate:'2024-03-10',closeDate:'2026-02-28'},
+  {name:'仲盛世界商城零售中心',status:'已闭',type:'商场店',openDate:'2023-02-28',closeDate:'2025-12-31'},
+  {name:'大宁国际零售中心',status:'已闭',type:'商场店',openDate:'2021-12-31',closeDate:'2025-12-31'},
+  {name:'七宝万科零售中心',status:'已闭',type:'商场店',openDate:'2021-07-09',closeDate:'2024-11-30'},
+  {name:'南丰荟零售中心',status:'已闭',type:'商场店',openDate:'2019-08-24',closeDate:'2026-01-31'},
+  {name:'松江车墩汽车城零售中心',status:'已闭',type:'中心店',openDate:'2024-12-28',closeDate:'2025-12-31'},
+  {name:'杨浦中心零售中心',status:'已闭',type:'中心店',openDate:'2023-12-14',closeDate:'2026-01-20'},
+];
+
+const ROW_CFG = [
+  {status:'在营',type:'商场店',color:'#2D5A3D',shape:'circle'},
+  {status:'在营',type:'中心店',color:'#5A8F6A',shape:'square'},
+  {status:'已闭',type:'商场店',color:'#9E9E9E',shape:'circle'},
+  {status:'已闭',type:'中心店',color:'#C7C7C7',shape:'square'},
+];
+
+const TL_START = new Date(2019,0,1).getTime();
+const TL_RANGE = new Date(2027,0,1).getTime() - TL_START;
+const ZOOM = [1100,1600,2200,3000,4200,5800];
+
+function loadData(){
+  const r=localStorage.getItem('sh_stores');
+  if(r)try{return JSON.parse(r)}catch(e){}
+  const d=STORE_SEED.map((s,i)=>({...s,id:'s'+i}));
+  localStorage.setItem('sh_stores',JSON.stringify(d));
+  return d;
+}
+function saveData(d){localStorage.setItem('sh_stores',JSON.stringify(d))}
+function datePct(d){return Math.max(0,Math.min(1,(new Date(d).getTime()-TL_START)/TL_RANGE))*100}
+
+let stores=loadData(),filterStatus='all',isAdmin=false,zoomIdx=0;
+
+// ===== AUTH =====
+function checkSession(){if(localStorage.getItem('sh_admin')==='true'){isAdmin=true;applyMode()}}
+function showLogin(){
+  if(isAdmin){isAdmin=false;localStorage.removeItem('sh_admin');applyMode();return}
+  document.getElementById('loginId').value='';document.getElementById('loginPwd').value=''
+  document.getElementById('loginErr').classList.add('hidden');document.getElementById('loginOverlay').classList.add('active')
+  setTimeout(()=>document.getElementById('loginId').focus(),100)
+}
+function doLogin(){
+  if(document.getElementById('loginId').value.trim()==='12345'&&document.getElementById('loginPwd').value==='56789'){
+    document.getElementById('loginOverlay').classList.remove('active');isAdmin=true;localStorage.setItem('sh_admin','true');applyMode()
+  } else {document.getElementById('loginErr').classList.remove('hidden')}
+}
+function skipLogin(){document.getElementById('loginOverlay').classList.remove('active');isAdmin=false;applyMode()}
+function applyMode(){
+  const b=document.getElementById('modeBadge'),a=document.getElementById('addBtn'),l=document.getElementById('adminLabel')
+  if(isAdmin){
+    b.textContent='编辑模式';b.className='text-[10px] px-2.5 py-0.5 rounded-full border font-medium bg-[#E8F0EB] text-[var(--green-dark)] border-[var(--green-dark)]'
+    a.classList.remove('hidden');l.textContent='退出管理'
+  } else {
+    b.textContent='查阅模式';b.className='text-[10px] px-2.5 py-0.5 rounded-full border font-medium bg-gray-50 text-gray-500 border-gray-200'
+    a.classList.add('hidden');l.textContent='管理员登录'
+  }
+  renderAll()
+}
+
+// ===== ZOOM =====
+function applyZoom(){document.getElementById('timelineScroll').style.minWidth=ZOOM[zoomIdx]+'px';document.getElementById('zoomLevel').textContent=(zoomIdx+1)+'×'}
+function zoomIn(){if(zoomIdx<ZOOM.length-1){zoomIdx++;applyZoom()}}
+function zoomOut(){if(zoomIdx>0){zoomIdx--;applyZoom()}}
+function zoomReset(){zoomIdx=0;applyZoom()}
+
+// ===== RENDER =====
+function getFiltered(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase()
+  return stores.filter(s=>{
+    if(filterStatus!=='all'&&s.status!==filterStatus)return false
+    if(q&&!s.name.toLowerCase().includes(q))return false
+    return true
+  })
+}
+
+function renderStats(){
+  const a=stores.filter(s=>s.status==='在营'),c=stores.filter(s=>s.status==='已闭')
+  const am=a.filter(s=>s.type==='商场店').length,ac=a.filter(s=>s.type==='中心店').length
+  document.getElementById('statsBar').innerHTML=`
+    <span class="stat-badge bg-[var(--green-dark)]/10 text-[var(--green-dark)]"><i class="fa fa-building-o"></i> 总计 <strong>${stores.length}</strong> 家</span>
+    <span class="stat-badge bg-green-50 text-green-700"><i class="fa fa-check-circle-o"></i> 在营 <strong>${a.length}</strong> 家</span>
+    <span class="stat-badge bg-gray-100 text-gray-600"><i class="fa fa-circle-o"></i> 商场店 ${am} · 中心店 ${ac}</span>
+    <span class="stat-badge bg-gray-100 text-gray-500"><i class="fa fa-times-circle-o"></i> 已关闭 <strong>${c.length}</strong> 家</span>
+  `
+}
+
+function renderRowCounts(){
+  ROW_CFG.forEach((r,i)=>{document.getElementById('count'+i).textContent=stores.filter(s=>s.status===r.status&&s.type===r.type).length})
+}
+
+function renderQuarterTicks(){
+  const c=document.getElementById('quarterTicks');c.innerHTML=''
+  for(let y=2019;y<=2026;y++)for(let q=1;q<=4;q++){const d=document.createElement('div');d.className='text-center text-[10px] text-gray-400 py-0.5 border-r border-gray-50';d.textContent='Q'+q;c.appendChild(d)}
+}
+
+function renderTimeline(){
+  const rows=document.querySelectorAll('.row-area')
+  rows.forEach(row=>{row.querySelectorAll('.store-dot,.store-label,.quarter-line,.year-line').forEach(el=>el.remove())})
+  rows.forEach(row=>{
+    for(let q=1;q<=31;q++){const l=document.createElement('div');l.className='quarter-line';l.style.left=(q/32*100)+'%';row.appendChild(l)}
+    for(let y=2019;y<=2026;y++){const l=document.createElement('div');l.className='year-line';l.style.left=((new Date(y,0,1).getTime()-TL_START)/TL_RANGE*100)+'%';row.appendChild(l)}
+  })
+  const fil=getFiltered()
+  ROW_CFG.forEach((cfg,ri)=>{
+    const row=rows[ri],items=fil.filter(s=>s.status===cfg.status&&s.type===cfg.type).sort((a,b)=>a.openDate.localeCompare(b.openDate))
+    if(!items.length){const e=document.createElement('div');e.className='flex items-center justify-center h-full text-gray-300 text-xs gap-1';e.innerHTML='<i class="fa fa-ellipsis-h"></i> 暂无';row.appendChild(e);return}
+    const used=[]
+    items.forEach((s,idx)=>{
+      const p=datePct(s.openDate);let lv=0
+      for(let a=0;a<3;a++){const cand=(idx+a)%3;if(!used.some(u=>Math.abs(u.p-p)<0.25&&u.lv===cand)){lv=cand;break}}
+      used.push({p,lv})
+      const dot=document.createElement('div');dot.className='store-dot'
+      dot.style.left=p+'%';dot.style.top=(26+lv*12)+'px';dot.style.width='14px';dot.style.height='14px'
+      dot.style.background=cfg.color;dot.style.borderRadius=cfg.shape==='circle'?'50%':'3px'
+      dot.style.border='2px solid white';dot.style.boxShadow='0 0 0 1px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.12)'
+      dot.addEventListener('mouseenter',e=>showTip(e,s));dot.addEventListener('mousemove',moveTip);dot.addEventListener('mouseleave',hideTip)
+      if(isAdmin){dot.addEventListener('click',e=>{e.stopPropagation();openEdit(s.id)});dot.style.cursor='pointer'}else{dot.style.cursor='default'}
+      row.appendChild(dot)
+      const lb=document.createElement('div');lb.className='store-label';lb.style.left=p+'%';lb.style.top=(38+lv*12)+'px';lb.textContent=s.name;row.appendChild(lb)
+    })
+  })
+}
+
+function renderStoreList(){
+  const c=document.getElementById('storeList'),e=document.getElementById('emptyHint'),fil=getFiltered()
+  document.getElementById('totalCount').textContent=fil.length
+  if(!fil.length){c.innerHTML='';e.classList.remove('hidden');return}
+  e.classList.add('hidden')
+  const srt=[...fil].sort((a,b)=>a.openDate.localeCompare(b.openDate))
+  c.innerHTML=srt.map(s=>{
+    const cfg=ROW_CFG.find(r=>r.status===s.status&&r.type===s.type),cl=cfg?cfg.color:'#2D5A3D',rr=cfg&&cfg.shape==='circle'?'50%':'3px',act=s.status==='在营'
+    const closeInfo=s.closeDate?`<div>🚫 闭店 ${s.closeDate}</div>`:''
+    return `<div class="store-card rounded-xl p-3">
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span style="display:inline-block;width:12px;height:12px;flex-shrink:0;background:${cl};border-radius:${rr}"></span>
+          <span class="text-sm font-semibold text-gray-800 truncate">${s.name}</span>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${act?'bg-green-50 text-green-700':'bg-gray-100 text-gray-500'}">${s.status}</span>
+      </div>
+      <div class="mt-1.5 pl-5 text-xs text-gray-500 space-y-0.5">
+        <div>📅 开业 ${s.openDate}</div>
+        ${closeInfo}
+        <div>🏷 ${s.type}</div>
+      </div>
+      ${isAdmin?`<div class="flex gap-2 mt-2 pl-5"><button onclick="openEdit('${s.id}')" class="btn-ghost !py-1 !px-3 !text-xs"><i class="fa fa-pencil"></i> 编辑</button><button onclick="delStore('${s.id}')" class="btn-danger !py-1 !px-3 !text-xs"><i class="fa fa-trash-o"></i> 删除</button></div>`:''}
+    </div>`
+  }).join('')
+}
+
+function renderAll(){renderStats();renderRowCounts();renderTimeline();renderStoreList()}
+
+// ===== TOOLTIP =====
+function showTip(e,s){
+  const t=document.getElementById('tooltip'),cd=s.closeDate?`<div>🚫 闭店 ${s.closeDate}</div>`:''
+  t.innerHTML=`<div class="bg-gray-900 text-white rounded-lg px-3 py-2 shadow-lg" style="font-size:12px;max-width:220px"><div style="font-weight:600;font-size:14px;margin-bottom:4px">${s.name}</div><div>${s.type} · ${s.status}</div><div>📅 开业 ${s.openDate}</div>${cd}</div>`
+  t.style.opacity='1';moveTip(e)
+}
+function moveTip(e){
+  const t=document.getElementById('tooltip');let x=e.clientX+14,y=e.clientY-10
+  if(x+230>window.innerWidth)x=e.clientX-230;if(y<10)y=10
+  t.style.left=x+'px';t.style.top=y+'px'
+}
+function hideTip(){document.getElementById('tooltip').style.opacity='0'}
+
+// ===== CRUD =====
+function openEdit(id){
+  if(!isAdmin)return;const s=stores.find(x=>x.id===id);if(!s)return
+  document.getElementById('modalTitle').textContent='编辑门店';document.getElementById('editId').value=id
+  document.getElementById('formName').value=s.name;document.getElementById('formStatus').value=s.status
+  document.getElementById('formType').value=s.type;document.getElementById('formOpenDate').value=s.openDate
+  document.getElementById('formCloseDate').value=s.closeDate||''
+  document.getElementById('closeDateGroup').style.display=s.status==='已闭'?'block':'none'
+  document.getElementById('modalOverlay').classList.add('active')
+}
+function openAddModal(){
+  if(!isAdmin)return
+  document.getElementById('modalTitle').textContent='添加门店';document.getElementById('editId').value=''
+  document.getElementById('storeForm').reset();document.getElementById('closeDateGroup').style.display='none'
+  document.getElementById('modalOverlay').classList.add('active')
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active')}
+function saveStore(e){
+  e.preventDefault();const editId=document.getElementById('editId').value
+  const d={name:document.getElementById('formName').value.trim(),status:document.getElementById('formStatus').value,type:document.getElementById('formType').value,openDate:document.getElementById('formOpenDate').value}
+  if(d.status==='已闭'){const cd=document.getElementById('formCloseDate').value;if(cd)d.closeDate=cd}
+  else delete d.closeDate
+  if(editId){const i=stores.findIndex(s=>s.id===editId);if(i>-1)stores[i]={...stores[i],...d}}
+  else{d.id='s'+Date.now()+Math.random().toString(36).slice(2,6);stores.push(d)}
+  saveData(stores);closeModal();renderAll()
+}
+function delStore(id){
+  if(!isAdmin)return
+  if(!confirm('确定删除「'+(stores.find(s=>s.id===id)?.name||'')+'」？'))return
+  stores=stores.filter(s=>s.id!==id);saveData(stores);renderAll()
+}
+
+// toggle close date field on status change
+document.addEventListener('change',function(e){
+  if(e.target.id==='formStatus')document.getElementById('closeDateGroup').style.display=e.target.value==='已闭'?'block':'none'
+})
+
+// ===== EVENTS =====
+document.addEventListener('click',function(e){
+  const b=e.target.closest('.filter-btn');if(!b)return
+  document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'))
+  b.classList.add('active');filterStatus=b.dataset.filter;renderAll()
+})
+document.getElementById('searchInput').addEventListener('input',renderAll)
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()})
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded',function(){renderQuarterTicks();renderAll();checkSession()})
+</script>
+</body>
+</html>
